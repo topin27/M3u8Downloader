@@ -49,13 +49,11 @@ def execute(restore, context):
     m.get_tsfiles()
     if m.is_task_success:
         m.merge()
-
-    # clean everything Downloader generates
-    m.cleanup()
-    # clean restore
-    restore.cleanup()
-
-    if not m.is_task_success:
+        # clean everything Downloader generates
+        m.cleanup()
+        # clean restore
+        restore.cleanup()
+    else:
         print('Download failed')
         print('Try it again with options --refer and --url')
 
@@ -69,6 +67,10 @@ def main():
                         help="[0]base url for ts when downloading")
     parser.add_argument("-r", "--referer", default='',
                         help="[0]the Referer in request header")
+    parser.add_argument("-a", "--user-agent", type=str, dest="user_agent",
+                        default=("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:95.0) "
+                                 "Gecko/20100101 Firefox/95.0"),
+                        help="[0]the User-Agent in request header")
     parser.add_argument("-t", "--threads", type=int, default=10,
                         help="[0]how many threads to start for download")
     parser.add_argument("--insecure", action="store_true",
@@ -106,7 +108,8 @@ def main():
 
             context = M3u8Context(file_url=args.fileurl, referer=args.referer,
                                   threads=args.threads, output_file=args.output,
-                                  get_m3u8file_complete=False, downloaded_ts_urls=[], quiet=args.quiet)
+                                  get_m3u8file_complete=False, downloaded_ts_urls=[],
+                                  quiet=args.quiet, user_agent=args.user_agent)
             context["base_url"] = args.url \
                 if args.url .endswith('/') else args.url + '/'  # noqa
 

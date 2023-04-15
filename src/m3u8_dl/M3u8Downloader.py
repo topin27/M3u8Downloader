@@ -103,7 +103,7 @@ class TsFile():
 
 class M3u8Context(object):
     rendering_attrs = ['file_url', 'base_url', 'referer', 'threads', 'output_file', 'sslverify',
-                       'get_m3u8file_complete', 'downloaded_ts_urls', 'quiet']
+                       'get_m3u8file_complete', 'downloaded_ts_urls', 'quiet', 'user_agent']
 
     def __init__(self, **kwargs):
         self._container = {}
@@ -132,7 +132,7 @@ class M3u8Context(object):
 
 class M3u8Downloader:
     m3u8_filename = 'output.m3u8'
-    ts_tmpfolder = '.tmpts'
+    ts_tmpfolder = 'tmpts'
     max_try = 10
 
     def __init__(self, context, on_progress_callback=None):
@@ -150,6 +150,8 @@ class M3u8Downloader:
             myprint.myprint = myprint.quiet_print
 
         self.headers = {'Referer': self.referer}
+        if context['user_agent']:
+            self.headers['User-Agent'] = context['user_agent']
         self.tsfiles = []
 
         self.ts_index = 0
@@ -223,7 +225,8 @@ class M3u8Downloader:
 
 
             if not uri in dd_ts:
-                tsfile.get_file()
+                if not os.path.exists(outfile):
+                    tsfile.get_file()
                 dd_ts.append(uri)
             self.tsfiles.append(tsfile)
 
